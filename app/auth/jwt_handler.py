@@ -1,27 +1,45 @@
-from datetime import datetime, timedelta
-from jose import JWTError, jwt
-from passlib.context import CryptContext
+from datetime import datetime, timedelta, timezone
 
-SECRET_KEY = "music-api-secret-key-2024"
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+import bcrypt
+import jwt
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto", bcrypt__rounds=12)
+from app.config import settings
+
+# bcrypt only considers the first 72 bytes of a password.
+_BCRYPT_MAX_BYTES = 72
+
+
+def _password_bytes(password: str) -> bytes:
+    return password.encode("utf-8")[:_BCRYPT_MAX_BYTES]
+
 
 def hash_password(password: str) -> str:
-    return pwd_context.hash(password[:72])
+    return bcrypt.hashpw(_password_bytes(password), bcrypt.gensalt(rounds=12)).decode(
+        "utf-8"
+    )
+
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
-    return pwd_context.verify(plain_password[:72], hashed_password)
+    try:
+        return bcrypt.checkpw(
+            _password_bytes(plain_password), hashed_password.encode("utf-8")
+        )
+    except (ValueError, TypeError):
+        return False
+
 
 def create_access_token(data: dict) -> str:
-    to_encode = data.copy()
-    expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    to_encode.update({"exp": expire})
-    return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    now = datetime.now(timezone.utc)
+    payload = {
+        **data,
+        "iat": now,
+        "exp": now + timedelta(minutes=settings.access_token_expire_minutes),
+    }
+    return jwt.encode(payload, settings.secret_key, algorithm=settings.algorithm)
 
-def decode_token(token: str) -> dict:
+
+def decode_token(token: str) -> dict | None:
     try:
-        return jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-    except JWTError:
+        return jwt.decode(token, settings.secret_key, algorithms=[settings.algorithm])
+    except jwt.PyJWTError:
         return None

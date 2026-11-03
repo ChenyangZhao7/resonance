@@ -1,13 +1,15 @@
-from sqlalchemy import Column, Integer, String, Float, ForeignKey
+from sqlalchemy import Column, Float, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
+
 from app.database import Base
+
 
 class Song(Base):
     __tablename__ = "songs"
 
     id = Column(Integer, primary_key=True, index=True)
     title = Column(String, index=True, nullable=False)
-    artist_id = Column(Integer, ForeignKey("artists.id"))
+    artist_id = Column(Integer, ForeignKey("artists.id", ondelete="CASCADE"), index=True)
     genre = Column(String, index=True)
     mood = Column(String)
     duration_ms = Column(Integer)
@@ -23,4 +25,9 @@ class Song(Base):
     spotify_id = Column(String, unique=True)
 
     artist = relationship("Artist", back_populates="songs")
-    ratings = relationship("Rating", back_populates="song")
+    ratings = relationship(
+        "Rating",
+        back_populates="song",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+    )

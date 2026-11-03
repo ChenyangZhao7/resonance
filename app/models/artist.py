@@ -1,6 +1,8 @@
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
+
 from app.database import Base
+
 
 class Artist(Base):
     __tablename__ = "artists"
@@ -10,4 +12,9 @@ class Artist(Base):
     genre = Column(String)
     popularity = Column(Integer, default=0)
 
-    songs = relationship("Song", back_populates="artist")
+    songs = relationship(
+        "Song",
+        back_populates="artist",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+    )
