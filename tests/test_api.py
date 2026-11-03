@@ -36,6 +36,15 @@ def test_openapi_schema_generates(client):
     assert "/ratings/" in response.json()["paths"]
 
 
+def test_docs_use_local_swagger_assets(client):
+    page = client.get("/docs")
+    assert page.status_code == 200
+    # No CDN dependency: the docs page points at /static.
+    assert "/static/swagger/swagger-ui-bundle.js" in page.text
+    assert "cdn.jsdelivr.net" not in page.text
+    assert client.get("/static/swagger/swagger-ui.css").status_code == 200
+
+
 # --- songs / artists --------------------------------------------------------
 
 def test_get_songs(client):

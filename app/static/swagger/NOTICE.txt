@@ -1,0 +1,16 @@
+Swagger UI assets in this folder are vendored so /docs works without internet
+access.
+
+  Source : https://github.com/swagger-api/swagger-ui
+  Version: 5.34.1 (dist/ from the upstream repository)
+  License: Apache License 2.0 (see LICENSE.txt)
+
+Files:
+  swagger-ui-bundle.js
+  swagger-ui.css
+  favicon-32x32.png
+
+Version 5.x is required because FastAPI generates an OpenAPI 3.1 document,
+which Swagger UI 4.x cannot render.
+
+To upgrade, copy the same files from a newer upstream `dist/` folder.

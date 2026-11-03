@@ -71,8 +71,8 @@ If `MRA_SECRET_KEY` is left at its default, the app logs a warning at startup.
 uvicorn app.main:app --reload
 ```
 
-- Swagger UI: http://127.0.0.1:8000/docs
-- ReDoc: http://127.0.0.1:8000/redoc
+- Swagger UI: http://127.0.0.1:8000/docs (assets are vendored in
+  `app/static/swagger`, so it works offline)
 - API docs PDF: `docs/Music Recommendation API - Swagger UI.pdf`
 - Slides: `docs/Music_Recommendation_API.pptx`
 - Technical report: `docs/technical_report.pdf`
